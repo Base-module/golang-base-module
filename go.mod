@@ -1,3 +1,3 @@
-module v2
+module golang-base-module
 
 go 1.23.4

@@ -16,4 +16,4 @@ The included tools are:
 
 ## Installation
 
-`go get -u github.com/cyrusmanosa/golang-base-module`
+`go get -u github.com/Base-module/golang-base-module`

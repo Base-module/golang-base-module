@@ -140,14 +140,14 @@ func (t *JsonTools) PushJSONToRemote(uri string, data interface{}, client ...*ht
 	if err != nil {
 		return nil, 0, err
 	}
+	request.Header.Set("Content-Type", "application/json")
 
 	// call the remote uri
 	response, err := httpClient.Do(request)
 	if err != nil {
 		return nil, 0, err
 	}
-	defer response.Body.Close()
-
+	// Note: Caller is responsible for closing response.Body
 	// send response back
 	return response, response.StatusCode, nil
 }

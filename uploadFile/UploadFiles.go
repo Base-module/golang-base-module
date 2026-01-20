@@ -10,7 +10,7 @@ import (
 	"strings"
 
 	Crete "github.com/Base-module/golang-base-module/createDirIfNotExist"
-	Random "github.com/Base-module/golang-base-module/randomData"
+	Random "github.com/Base-module/golang-base-module/randomData/strings"
 )
 
 func (t *UploadTools) UploadFiles(r *http.Request, uploadDir string, rename ...bool) ([]*UploadedFile, error) {
@@ -84,17 +84,16 @@ func (t *UploadTools) UploadFiles(r *http.Request, uploadDir string, rename ...b
 				uploadedFile.OriginalFileName = hdr.Filename
 
 				var outfile *os.File
-				defer outfile.Close()
-
 				if outfile, err = os.Create(filepath.Join(uploadDir, uploadedFile.NewFileName)); err != nil {
 					return nil, err
-				} else {
-					fileSize, err := io.Copy(outfile, infile)
-					if err != nil {
-						return nil, err
-					}
-					uploadedFile.FileSize = fileSize
 				}
+				defer outfile.Close()
+
+				fileSize, err := io.Copy(outfile, infile)
+				if err != nil {
+					return nil, err
+				}
+				uploadedFile.FileSize = fileSize
 
 				uploadedFiles = append(uploadedFiles, &uploadedFile)
 

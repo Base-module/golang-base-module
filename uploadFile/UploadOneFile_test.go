@@ -2,8 +2,6 @@ package uploadFile
 
 import (
 	"fmt"
-	"image"
-	"image/png"
 	"io"
 	"mime/multipart"
 	"net/http/httptest"
@@ -12,38 +10,30 @@ import (
 )
 
 func TestTools_UploadOneFile(t *testing.T) {
-	// set up a pipe to avoid buffering
 	pr, pw := io.Pipe()
 	writer := multipart.NewWriter(pw)
 
-	// Create Test File
 	go func() {
 		defer writer.Close()
-
-		part, err := writer.CreateFormFile("file", "./testdata/A123.png")
+		part, err := writer.CreateFormFile("file", "test.jpg")
 		if err != nil {
 			t.Error(err)
+			return
 		}
 
-		f, err := os.Open("./testdata/A123.png")
+		f, err := os.Open("../testdata/ABCD.jpg")
 		if err != nil {
 			t.Error(err)
+			return
 		}
-
 		defer f.Close()
 
-		img, _, err := image.Decode(f)
-		if err != nil {
-			t.Error("error decoding image", err)
-		}
-
-		err = png.Encode(part, img)
+		_, err = io.Copy(part, f)
 		if err != nil {
 			t.Error(err)
 		}
 	}()
 
-	// Read and Upload Test File
 	request := httptest.NewRequest("POST", "/", pr)
 	request.Header.Add("Content-Type", writer.FormDataContentType())
 
@@ -51,11 +41,13 @@ func TestTools_UploadOneFile(t *testing.T) {
 	uploadedFiles, err := testTools.UploadOneFile(request, "./testdata/uploads/", true)
 	if err != nil {
 		t.Error(err)
+		return
 	}
 
-	if _, err := os.Stat(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName)); os.IsNotExist(err) {
+	filePath := fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName)
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
 		t.Errorf("expected file to exist: %s", err.Error())
 	}
 
-	os.Remove(fmt.Sprintf("./testdata/uploads/%s", uploadedFiles.NewFileName))
+	_ = os.Remove(filePath)
 }

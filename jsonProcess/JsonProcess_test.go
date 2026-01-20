@@ -38,9 +38,12 @@ func TestTools_PushJSONToRemote(t *testing.T) {
 	}
 	foo.Bar = "bar"
 
-	_, _, err := testTools.PushJSONToRemote("http://example.com/some/path", foo, client)
+	resp, _, err := testTools.PushJSONToRemote("http://example.com/some/path", foo, client)
 	if err != nil {
 		t.Error("failed to call remote url:", err)
+	}
+	if resp != nil {
+		defer resp.Body.Close()
 	}
 }
 
@@ -138,5 +141,3 @@ func TestTools_ErrorJSON(t *testing.T) {
 		t.Errorf("wrong status code returned; expected 503, but got %d", rr.Code)
 	}
 }
-
-////-----------------------------------------------------------------
